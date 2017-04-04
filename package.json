@@ -1,0 +1,31 @@
+{
+  "name": "text-highlighter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable control that highlights key text",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hollislau/text-highlighter.git"
+  },
+  "author": "Hollis Lau <hollislau@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hollislau/text-highlighter/issues"
+  },
+  "homepage": "https://github.com/hollislau/text-highlighter#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-nodemon": "^2.2.1",
+    "webpack": "^2.3.3",
+    "webpack-stream": "^3.2.0"
+  },
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
