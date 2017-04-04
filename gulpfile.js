@@ -1,9 +1,10 @@
-const gulp = require('gulp');
+const autoprefixer = require('gulp-autoprefixer');
 const eslint = require('gulp-eslint');
+const gulp = require('gulp');
+const livereload = require('gulp-livereload');
+const nodemon = require('gulp-nodemon');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
-const nodemon = require('gulp-nodemon');
-const livereload = require('gulp-livereload');
 
 var nodemonStream;
 
@@ -11,7 +12,7 @@ const lintFiles = [
   'app/**/*.js',
   '*.js'
 ];
-const staticFiles = ['app/**/*.html'];
+const staticFiles = ['app/**/*.html', 'app/**/*.css'];
 
 gulp.task('lint', () => {
   return gulp.src(lintFiles)
@@ -37,7 +38,7 @@ gulp.task('watch', ['build:dev'], () => {
   } else {
     nodemonStream = nodemon({
       script: 'server.js',
-      watch: ['lib', '_server.js', 'server.js']
+      watch: ['server.js']
     })
     .on('restart', () => {
       process.stdout.write('Server restarted!\n');
