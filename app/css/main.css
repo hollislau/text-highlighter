@@ -1,0 +1,12 @@
+span {
+  border-radius: 5px;
+  padding: 2px;
+}
+
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: green;
+}
