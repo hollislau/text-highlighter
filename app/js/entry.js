@@ -24,8 +24,11 @@ const wordList = [
 ];
 const divOne = document.getElementById('container-one');
 const divTwo = document.getElementById('container-two');
+const divThree = document.getElementById('container-three');
 const highlighterOne = highlighter(divOne, wordList);
 const highlighterTwo = highlighter(divTwo, wordList);
+const highlighterThree = highlighter(divThree, wordList);
 
-highlighterOne.highlight('First string with candidates and candidates again in the middle.');
-highlighterTwo.highlight('Second string with love and love again in the middle.');
+highlighterOne.highlight('First string with candidates, love, and candidates in the middle.');
+highlighterTwo.highlight('Second string with an arm, radio, radio, and will deliver new in the middle.');
+highlighterThree.highlight('No matches here.');
