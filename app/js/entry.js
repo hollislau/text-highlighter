@@ -31,7 +31,7 @@ const highlighterTwo = highlighter(divTwo, wordList);
 const highlighterThree = highlighter(divThree, wordList);
 const highlighterFour = highlighter(divFour, wordList);
 
-highlighterOne.highlight('Aggressive string with a radio, love, a log file, and another radio is creative!');
+highlighterOne.highlight('Aggressive string with a radio, love, a log file, and another radio is creative! An adorable puppy is super adorable.');
 highlighterTwo.highlight('I do not want new technology; our team will deliver new, action-oriented candidates. Also, an army of farm animals is alarming but charming, if you have a strong arm?');
 highlighterThree.highlight('Nothing to see here.');
 highlighterFour.highlight('We expect our candidates to be action-oriented, aggressive and have creative ideas for our team. You will deliver new technology and groundbreaking designs.');
