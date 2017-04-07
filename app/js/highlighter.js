@@ -47,6 +47,20 @@ module.exports = function (div, wordList) {
       });
 
       for (let i = 0; i < foundArr.length; i++) {
+        if (foundArr[i + 1] && foundArr[i].endIndex > foundArr[i + 1].startIndex) {
+          let highPriority;
+          let lowPriority;
+
+          if (foundArr[i].priority < foundArr[i + 1].priority) {
+            highPriority = foundArr[i];
+            lowPriority = foundArr[i + 1];
+          } else {
+            highPriority = foundArr[i + 1];
+            lowPriority = foundArr[i];
+          }
+
+        }
+
         let leadStrIndex = foundArr[i - 1] ? foundArr[i - 1].endIndex + 1 : 0;
         let leadStr = formatted.slice(leadStrIndex, foundArr[i].startIndex);
         let foundStr = formatted.slice(foundArr[i].startIndex, foundArr[i].endIndex + 1);
