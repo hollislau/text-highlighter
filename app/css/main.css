@@ -8,6 +8,10 @@ span {
   margin: -2px;
 }
 
+.hover:hover {
+  background-color: black;
+}
+
 .red {
   background-color: #ffafaf;
 }
@@ -26,4 +30,8 @@ span {
 
 .grey {
   background-color: #e5e5e5;
+}
+
+.hidden {
+  display: none;
 }
