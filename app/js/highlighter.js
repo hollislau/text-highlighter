@@ -50,7 +50,7 @@ module.exports = function (div, wordList) {
                   startIndex: foundIndex,
                   endIndex: wordEndIndex,
                   color: wordList[i].color,
-                  priority: wordList[i]
+                  priority: i
                 });
               }
             }
@@ -87,40 +87,46 @@ module.exports = function (div, wordList) {
         normalText = createText(formatted, normalStartIndex, foundArr[i].startIndex);
         newP.appendChild(normalText);
 
-        // render overlapping highlights
+        // render layered highlights
         if (foundArr[i + 1] && foundArr[i + 1].startIndex < foundArr[i].endIndex) {
+          let parentHl = document.createElement('span');
+          let parentHlStartText = createText(formatted, foundArr[i].startIndex, foundArr[i + 1].startIndex);
+
+          parentHl.appendChild(parentHlStartText);
+          newP.appendChild(parentHl);
           // render nested highlights
           if (foundArr[i + 1].endIndex <= foundArr[i].endIndex) {
-            let parentHl = document.createElement('span');
-            let parentHlStartText = createText(formatted, foundArr[i].startIndex, foundArr[i + 1].startIndex);
             let parentHlColor = foundArr[i].color;
             let childHlArr = [];
             let j = 0;
             let parentHlEndText;
 
-            parentHl.appendChild(parentHlStartText);
             parentHl.className = foundArr[i].color;
-            newP.appendChild(parentHl);
 
             while (foundArr[i + j + 1] && foundArr[i + j + 1].endIndex <= foundArr[i].endIndex) {
               let previous = foundArr[i + j];
               let child = foundArr[i + j + 1];
               let parentHlText = createText(formatted, previous.endIndex + 1, child.startIndex);
               let childHl = createSpan(formatted, child);
+              let initChildColor = child.priority < foundArr[i].priority
+                ? child.color
+                : foundArr[i].color;
 
               parentHl.appendChild(parentHlText);
-              childHl.className = child.color + ' hover';
+              childHl.className = initChildColor;
               parentHl.appendChild(childHl);
 
               childHl.addEventListener('mouseover', (e) => {
                 e.stopPropagation();
                 parentHl.removeAttribute('class');
+                childHl.className = child.color + ' hover';
               });
               childHl.addEventListener('mouseout', () => {
                 parentHl.className = parentHlColor;
+                childHl.className = initChildColor;
               });
 
-              childHlArr.push([childHl, child.color]);
+              childHlArr.push([childHl, initChildColor]);
               j++;
             }
 
@@ -142,8 +148,11 @@ module.exports = function (div, wordList) {
 
             lastNestedEndIndex = foundArr[i].endIndex;
             i += j;
+          // render overlapping highlights
+          } else {
+
           }
-        // render non-overlapping highlights
+        // render non-layered highlights
         } else {
           highlight = createSpan(formatted, foundArr[i]);
           highlight.className = foundArr[i].color + ' hover';
