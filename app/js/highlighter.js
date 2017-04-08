@@ -101,7 +101,7 @@ module.exports = function (div, wordList) {
             let j = 0;
             let parentHlEndText;
 
-            parentHl.className = foundArr[i].color;
+            parentHl.className = parentHlColor;
 
             while (foundArr[i + j + 1] && foundArr[i + j + 1].endIndex <= foundArr[i].endIndex) {
               let previous = foundArr[i + j];
@@ -110,7 +110,7 @@ module.exports = function (div, wordList) {
               let childHl = createSpan(formatted, child);
               let initChildColor = child.priority < foundArr[i].priority
                 ? child.color
-                : foundArr[i].color;
+                : parentHlColor;
 
               parentHl.appendChild(parentHlText);
               childHl.className = initChildColor;
