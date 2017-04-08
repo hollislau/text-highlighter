@@ -29,8 +29,6 @@ const divFour = document.getElementById('container-four');
 const testParent = document.getElementById('test-parent');
 const test = document.getElementById('test');
 const altParent = document.getElementById('alt-parent');
-const test1Parent = document.getElementById('test1-parent');
-const test1 = document.getElementById('test1');
 const highlighterOne = highlighter(divOne, wordList);
 const highlighterTwo = highlighter(divTwo, wordList);
 const highlighterThree = highlighter(divThree, wordList);
@@ -58,19 +56,4 @@ testParent.addEventListener('mouseover', () => {
 altParent.addEventListener('mouseout', () => {
   altParent.className = 'hidden';
   testParent.className = 'red';
-});
-
-
-test1Parent.addEventListener('mouseover', () => {
-  test1Parent.className = 'red hover';
-  test1.className = 'red hover';
-});
-
-test1Parent.addEventListener('mouseout', () => {
-  test1Parent.className = 'red';
-  test1.className = 'blue hover';
-});
-
-test1.addEventListener('mouseover', (e) => {
-  e.stopPropagation();
 });

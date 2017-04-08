@@ -1,3 +1,19 @@
+function createText(formatted, start, end) {
+  var str = formatted.slice(start, end);
+  var newText = document.createTextNode(str);
+
+  return newText;
+}
+
+function createSpan(formatted, found) {
+  var foundStr = formatted.slice(found.startIndex, found.endIndex + 1);
+  var newSpanText = document.createTextNode(foundStr);
+  var newSpan = document.createElement('span');
+
+  newSpan.appendChild(newSpanText);
+  return newSpan;
+}
+
 module.exports = function (div, wordList) {
   const highlighter = {
     highlight: function (str) {
@@ -7,9 +23,11 @@ module.exports = function (div, wordList) {
       const foundArr = [];
 
       var newPText;
+      var lastNestedEndIndex;
 
       div.appendChild(newP);
 
+      // search formatted string for words in word list
       for (let i = 0; i < wordList.length; i++) {
         for (let j = 0; j < wordList[i].words.length; j++) {
           let currentWord = wordList[i].words[j];
@@ -42,40 +60,102 @@ module.exports = function (div, wordList) {
         }
       }
 
+      // sort found words by order of appearance
       foundArr.sort((a, b) => {
+        if (a.startIndex === b.startIndex) {
+          return b.endIndex - a.endIndex;
+        }
+
         return a.startIndex - b.startIndex;
       });
 
+      // render normal text and highlights
       for (let i = 0; i < foundArr.length; i++) {
-        if (foundArr[i + 1] && foundArr[i].endIndex > foundArr[i + 1].startIndex) {
-          let highPriority;
-          let lowPriority;
+        let normalStartIndex;
+        let normalText;
+        let highlight;
 
-          if (foundArr[i].priority < foundArr[i + 1].priority) {
-            highPriority = foundArr[i];
-            lowPriority = foundArr[i + 1];
-          } else {
-            highPriority = foundArr[i + 1];
-            lowPriority = foundArr[i];
-          }
-
+        // render any text preceding highlights
+        if (foundArr[i - 1]) {
+          normalStartIndex = lastNestedEndIndex > foundArr[i - 1].endIndex
+            ? lastNestedEndIndex + 1
+            : foundArr[i - 1].endIndex + 1;
+        } else {
+          normalStartIndex = 0;
         }
 
-        let leadStrIndex = foundArr[i - 1] ? foundArr[i - 1].endIndex + 1 : 0;
-        let leadStr = formatted.slice(leadStrIndex, foundArr[i].startIndex);
-        let foundStr = formatted.slice(foundArr[i].startIndex, foundArr[i].endIndex + 1);
-        let newPText = document.createTextNode(leadStr);
-        let newSpanText = document.createTextNode(foundStr);
-        let newSpan = document.createElement('span');
+        normalText = createText(formatted, normalStartIndex, foundArr[i].startIndex);
+        newP.appendChild(normalText);
 
-        newP.appendChild(newPText);
-        newSpan.appendChild(newSpanText);
-        newSpan.className = foundArr[i].color + ' hover';
-        newP.appendChild(newSpan);
+        // render overlapping highlights
+        if (foundArr[i + 1] && foundArr[i + 1].startIndex < foundArr[i].endIndex) {
+          // render nested highlights
+          if (foundArr[i + 1].endIndex <= foundArr[i].endIndex) {
+            let parentHl = document.createElement('span');
+            let parentHlStartText = createText(formatted, foundArr[i].startIndex, foundArr[i + 1].startIndex);
+            let parentHlColor = foundArr[i].color;
+            let childHlArr = [];
+            let j = 0;
+            let parentHlEndText;
+
+            parentHl.appendChild(parentHlStartText);
+            parentHl.className = foundArr[i].color;
+            newP.appendChild(parentHl);
+
+            while (foundArr[i + j + 1] && foundArr[i + j + 1].endIndex <= foundArr[i].endIndex) {
+              let previous = foundArr[i + j];
+              let child = foundArr[i + j + 1];
+              let parentHlText = createText(formatted, previous.endIndex + 1, child.startIndex);
+              let childHl = createSpan(formatted, child);
+
+              parentHl.appendChild(parentHlText);
+              childHl.className = child.color + ' hover';
+              parentHl.appendChild(childHl);
+
+              childHl.addEventListener('mouseover', (e) => {
+                e.stopPropagation();
+                parentHl.removeAttribute('class');
+              });
+              childHl.addEventListener('mouseout', () => {
+                parentHl.className = parentHlColor;
+              });
+
+              childHlArr.push([childHl, child.color]);
+              j++;
+            }
+
+            parentHlEndText = createText(formatted, foundArr[i + j].endIndex + 1, foundArr[i].endIndex + 1);
+            parentHl.appendChild(parentHlEndText);
+
+            parentHl.addEventListener('mouseover', () => {
+              parentHl.className = parentHlColor + ' hover';
+              childHlArr.forEach((child) => {
+                child[0].className = parentHlColor + ' hover';
+              });
+            });
+            parentHl.addEventListener('mouseout', () => {
+              parentHl.className = parentHlColor;
+              childHlArr.forEach((child) => {
+                child[0].className = child[1] + ' hover';
+              });
+            });
+
+            lastNestedEndIndex = foundArr[i].endIndex;
+            i += j;
+          }
+        // render non-overlapping highlights
+        } else {
+          highlight = createSpan(formatted, foundArr[i]);
+          highlight.className = foundArr[i].color + ' hover';
+          newP.appendChild(highlight);
+        }
       }
 
+      // render any remaining text after all highlights
       if (foundArr.length) {
-        let lastStrIndex = foundArr[foundArr.length - 1].endIndex + 1;
+        let lastStrIndex = lastNestedEndIndex > foundArr[foundArr.length - 1].endIndex + 1
+          ? lastNestedEndIndex + 1
+          : foundArr[foundArr.length - 1].endIndex + 1;
         let lastStr = formatted.slice(lastStrIndex);
 
         newPText = document.createTextNode(lastStr);
