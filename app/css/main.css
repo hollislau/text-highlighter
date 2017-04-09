@@ -10,28 +10,47 @@ span {
 
 .hover:hover {
   color: white;
-  opacity: 0.5;
   transition-duration: 0.2s;
 }
 
 .red {
-  background-color: #ffafaf;
+  background-color: hsl(0, 100%, 90%);
+}
+
+.red:hover {
+  background-color: hsl(0, 45%, 65%);
 }
 
 .green {
-  background-color: #8bf48d;
+  background-color: hsl(121, 82%, 80%);
+}
+
+.green:hover {
+  background-color: hsl(121, 27%, 55%);
 }
 
 .blue {
-  background-color: #8edfff;
+  background-color: hsl(196, 100%, 80%);
+}
+
+.blue:hover {
+  background-color: hsl(196, 45%, 55%)
 }
 
 .purple {
-  background-color: #f2a0ff;
+  background-color: hsl(291, 100%, 85%);
+}
+
+.purple:hover {
+  background-color: hsl(291, 45%, 60%);
 }
 
 .grey {
-  background-color: #e5e5e5;
+  background-color: hsl(0, 0%, 90%);
+}
+
+.grey:hover {
+  background-color: hsl(0, 0%, 65%);
 }
 
 .hidden {

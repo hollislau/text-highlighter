@@ -142,7 +142,7 @@ module.exports = function (div, wordList) {
               if (e.target === parentHl) {
                 parentHl.className = parentHlColor + ' hover';
                 childHlArr.forEach((child) => {
-                  child[0].className = parentHlColor + ' hover';
+                  child[0].removeAttribute('class');
                 });
               } else {
                 parentHl.removeAttribute('class');
