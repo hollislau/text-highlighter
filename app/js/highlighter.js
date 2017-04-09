@@ -25,6 +25,11 @@ module.exports = function (div, wordList) {
       var newPText;
       var lastNestedEndIndex;
 
+      // remove previously rendered text and highlights
+      if (div.firstChild) {
+        div.removeChild(div.firstChild);
+      }
+
       div.appendChild(newP);
 
       // search formatted string for words in word list

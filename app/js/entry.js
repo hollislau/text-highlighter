@@ -32,10 +32,13 @@ const strArr = [
 
 const divList = document.getElementsByTagName('div');
 const divArr = [...divList];
+
 const highlighters = divArr.map((div) => {
   return highlighter(div, wordList);
 });
 
-highlighters.forEach((highlighter, i) => {
-  highlighter.highlight(strArr[i]);
-});
+const highlighterOne = highlighters[0].highlight(strArr[0]);
+
+highlighters[1].highlight(strArr[1]);
+highlighters[2].highlight(strArr[2]);
+highlighters[3].highlight(strArr[3]);

@@ -6,6 +6,15 @@ span {
   border-radius: 5px;
   padding: 2px;
   margin: -2px;
+  white-space: nowrap;
+}
+
+div {
+  margin: 1% auto;
+  padding: 0.5rem 2%;
+  width: 60%;
+  border: 1px solid grey;
+  border-radius: 10px;
 }
 
 .hover:hover {
