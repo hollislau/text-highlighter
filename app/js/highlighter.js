@@ -69,13 +69,13 @@ module.exports = function (div, wordList) {
         return a.startIndex - b.startIndex;
       });
 
-      // render normal text and highlights
+      // render text and highlights
       for (let i = 0; i < foundArr.length; i++) {
         let normalStartIndex;
         let normalText;
         let highlight;
 
-        // render any text preceding highlights
+        // render normal text
         if (foundArr[i - 1]) {
           normalStartIndex = lastNestedEndIndex > foundArr[i - 1].endIndex
             ? lastNestedEndIndex + 1
@@ -87,19 +87,23 @@ module.exports = function (div, wordList) {
         normalText = createText(formatted, normalStartIndex, foundArr[i].startIndex);
         newP.appendChild(normalText);
 
-        // render layered highlights
+        // render overlapping highlights
         if (foundArr[i + 1] && foundArr[i + 1].startIndex < foundArr[i].endIndex) {
           let parentHl = document.createElement('span');
-          let parentHlStartText = createText(formatted, foundArr[i].startIndex, foundArr[i + 1].startIndex);
 
-          parentHl.appendChild(parentHlStartText);
+          if (foundArr[i].startIndex < foundArr[i + 1].startIndex) {
+            let parentHlStartText = createText(formatted, foundArr[i].startIndex, foundArr[i + 1].startIndex);
+
+            parentHl.appendChild(parentHlStartText);
+          }
+
           newP.appendChild(parentHl);
-          // render nested highlights
+
+          // render overlapping (stacked) highlights
           if (foundArr[i + 1].endIndex <= foundArr[i].endIndex) {
             let parentHlColor = foundArr[i].color;
             let childHlArr = [];
             let j = 0;
-            let parentHlEndText;
 
             parentHl.className = parentHlColor;
 
@@ -116,13 +120,11 @@ module.exports = function (div, wordList) {
               childHl.className = initChildColor;
               parentHl.appendChild(childHl);
 
-              childHl.addEventListener('mouseover', (e) => {
-                e.stopPropagation();
-                parentHl.removeAttribute('class');
+              childHl.addEventListener('mouseover', () => {
                 childHl.className = child.color + ' hover';
               });
+
               childHl.addEventListener('mouseout', () => {
-                parentHl.className = parentHlColor;
                 childHl.className = initChildColor;
               });
 
@@ -130,29 +132,92 @@ module.exports = function (div, wordList) {
               j++;
             }
 
-            parentHlEndText = createText(formatted, foundArr[i + j].endIndex + 1, foundArr[i].endIndex + 1);
-            parentHl.appendChild(parentHlEndText);
+            if (foundArr[i + j].endIndex < foundArr[i].endIndex) {
+              let parentHlEndText = createText(formatted, foundArr[i + j].endIndex + 1, foundArr[i].endIndex + 1);
 
-            parentHl.addEventListener('mouseover', () => {
-              parentHl.className = parentHlColor + ' hover';
-              childHlArr.forEach((child) => {
-                child[0].className = parentHlColor + ' hover';
-              });
+              parentHl.appendChild(parentHlEndText);
+            }
+
+            parentHl.addEventListener('mouseover', (e) => {
+              if (e.target === parentHl) {
+                parentHl.className = parentHlColor + ' hover';
+                childHlArr.forEach((child) => {
+                  child[0].className = parentHlColor + ' hover';
+                });
+              } else {
+                parentHl.removeAttribute('class');
+              }
             });
-            parentHl.addEventListener('mouseout', () => {
-              parentHl.className = parentHlColor;
-              childHlArr.forEach((child) => {
-                child[0].className = child[1] + ' hover';
-              });
+
+            parentHl.addEventListener('mouseout', (e) => {
+              if (e.target === parentHl) {
+                parentHl.className = parentHlColor;
+                childHlArr.forEach((child) => {
+                  child[0].className = child[1] + ' hover';
+                });
+              } else {
+                parentHl.className = parentHlColor;
+              }
             });
 
             lastNestedEndIndex = foundArr[i].endIndex;
             i += j;
-          // render overlapping highlights
+          // render overlapping (layered) highlights
           } else {
+            let childHl = createSpan(formatted, foundArr[i + 1]);
+            let altParentHl = document.createElement('span');
+            let altChildHl = createSpan(formatted, foundArr[i]);
+            let altParentHlText = createText(formatted, foundArr[i].endIndex + 1, foundArr[i + 1].endIndex + 1);
+            let primaryParent;
+            let primaryChild;
+            let secondaryParent;
+            let primaryParentColor;
 
+            parentHl.className = foundArr[i].color;
+            childHl.className = foundArr[i + 1].color + ' hover';
+            altParentHl.className = foundArr[i + 1].color;
+            altChildHl.className = foundArr[i].color + ' hover';
+
+            parentHl.appendChild(childHl);
+            altParentHl.appendChild(altChildHl);
+            altParentHl.appendChild(altParentHlText);
+            newP.appendChild(altParentHl);
+
+            if (foundArr[i].priority < foundArr[i + 1].priority) {
+              primaryParent = altParentHl;
+              primaryChild = altChildHl;
+              secondaryParent = parentHl;
+              primaryParentColor = foundArr[i + 1].color;
+            } else {
+              primaryParent = parentHl;
+              primaryChild = childHl;
+              secondaryParent = altParentHl;
+              primaryParentColor = foundArr[i].color;
+            }
+
+            secondaryParent.className = 'hidden';
+
+            primaryParent.addEventListener('mouseover', (e) => {
+              if (e.target === primaryParent) {
+                primaryParent.className = 'hidden';
+                secondaryParent.removeAttribute('class');
+              } else {
+                primaryParent.removeAttribute('class');
+              }
+            });
+
+            primaryChild.addEventListener('mouseout', () => {
+              primaryParent.className = primaryParentColor;
+            });
+
+            secondaryParent.addEventListener('mouseout', () => {
+              secondaryParent.className = 'hidden';
+              primaryParent.className = primaryParentColor;
+            });
+
+            i++;
           }
-        // render non-layered highlights
+        // render non-overlapping highlights
         } else {
           highlight = createSpan(formatted, foundArr[i]);
           highlight.className = foundArr[i].color + ' hover';
@@ -168,6 +233,7 @@ module.exports = function (div, wordList) {
         let lastStr = formatted.slice(lastStrIndex);
 
         newPText = document.createTextNode(lastStr);
+      // render text if no highlights found
       } else {
         newPText = document.createTextNode(formatted);
       }
