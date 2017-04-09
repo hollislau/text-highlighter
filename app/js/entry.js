@@ -22,16 +22,20 @@ const wordList = [
     words: ['very unlikely to leave', 'will deliver new']
   }
 ];
-const divOne = document.getElementById('container-one');
-const divTwo = document.getElementById('container-two');
-const divThree = document.getElementById('container-three');
-const divFour = document.getElementById('container-four');
-const highlighterOne = highlighter(divOne, wordList);
-const highlighterTwo = highlighter(divTwo, wordList);
-const highlighterThree = highlighter(divThree, wordList);
-const highlighterFour = highlighter(divFour, wordList);
 
-highlighterOne.highlight('Do  not   cross my radio (love my radio!) with a log file! While creative, I do not want new technology. An adorable puppy is super adorable.');
-highlighterTwo.highlight('Our team is very unlikely to leave behind promising candidates; we will deliver new, action-oriented prospects. Also, an army of farm animals is alarming but charming, if you have an aggressive arm?');
-highlighterThree.highlight('Nothing to see here.');
-highlighterFour.highlight('We expect our candidates to be action-oriented, aggressive and have creative ideas for our team. You will deliver new technology and groundbreaking designs.');
+const strArr = [
+  'Do  not   cross my radio (love my radio!) with a log file! While creative, I do not want new technology. An adorable puppy is super adorable.',
+  'Our team is very unlikely to leave behind promising candidates; we will deliver new, action-oriented prospects. Also, an army of farm animals is alarming but charming, if you have an aggressive arm?',
+  'Nothing to see here.',
+  'We expect our candidates to be action-oriented, aggressive and have creative ideas for our team. You will deliver new technology and groundbreaking designs.'
+];
+
+const divList = document.getElementsByTagName('div');
+const divArr = [...divList];
+const highlighters = divArr.map((div) => {
+  return highlighter(div, wordList);
+});
+
+highlighters.forEach((highlighter, i) => {
+  highlighter.highlight(strArr[i]);
+});
