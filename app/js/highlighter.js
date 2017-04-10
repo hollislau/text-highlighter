@@ -1,12 +1,60 @@
-function createText(formatted, start, end) {
-  var str = formatted.slice(start, end);
-  var newText = document.createTextNode(str);
+function findWords(str, wordList) {
+  const foundArr = [];
+
+  // search formatted string for words in word list
+  for (let i = 0; i < wordList.length; i++) {
+    for (let j = 0; j < wordList[i].words.length; j++) {
+      let currentWord = wordList[i].words[j];
+      let foundIndex = str.indexOf(currentWord);
+
+      while (foundIndex > -1) {
+        let wordEndIndex = foundIndex + currentWord.length - 1;
+        let preWordChar = str[foundIndex - 1];
+
+        if (preWordChar === ' ' || preWordChar === '(' || !preWordChar) {
+          let postWordChar = str[wordEndIndex + 1];
+
+          if (postWordChar && postWordChar.search(/[,.:;!?]/) > -1) {
+            wordEndIndex++;
+            postWordChar = str[wordEndIndex + 1];
+          }
+
+          if (postWordChar === ' ' || postWordChar === ')' || !postWordChar) {
+            foundArr.push({
+              startIndex: foundIndex,
+              endIndex: wordEndIndex,
+              color: wordList[i].color,
+              priority: i
+            });
+          }
+        }
+
+        foundIndex = str.indexOf(currentWord, wordEndIndex + 1);
+      }
+    }
+  }
+
+  // sort found words by order of appearance
+  foundArr.sort((a, b) => {
+    if (a.startIndex === b.startIndex) {
+      return b.endIndex - a.endIndex;
+    }
+
+    return a.startIndex - b.startIndex;
+  });
+
+  return foundArr;
+}
+
+function createText(str, start, end) {
+  var text = str.slice(start, end);
+  var newText = document.createTextNode(text);
 
   return newText;
 }
 
-function createSpan(formatted, found) {
-  var foundStr = formatted.slice(found.startIndex, found.endIndex + 1);
+function createSpan(str, found) {
+  var foundStr = str.slice(found.startIndex, found.endIndex + 1);
   var newSpanText = document.createTextNode(foundStr);
   var newSpan = document.createElement('span');
 
@@ -14,9 +62,27 @@ function createSpan(formatted, found) {
   return newSpan;
 }
 
-// function regLayerListeners (primaryParent, primaryChild, secondaryParent, primaryParentColor) {
-//
-// }
+function layeredListen(parent, child, secondaryParent, parentColor) {
+  secondaryParent.className = 'hidden';
+
+  parent.addEventListener('mouseover', (e) => {
+    if (e.target === parent) {
+      parent.className = 'hidden';
+      secondaryParent.removeAttribute('class');
+    } else {
+      parent.removeAttribute('class');
+    }
+  });
+
+  child.addEventListener('mouseout', () => {
+    parent.className = parentColor;
+  });
+
+  secondaryParent.addEventListener('mouseout', () => {
+    secondaryParent.className = 'hidden';
+    parent.className = parentColor;
+  });
+}
 
 module.exports = function (div, wordList) {
   const highlighter = {
@@ -43,8 +109,8 @@ module.exports = function (div, wordList) {
     highlight: function (str) {
       const formatted = str.replace(/\s\s+/g, ' ');
       const lowerCase = formatted.toLowerCase();
+      const foundArr = findWords(lowerCase, wordList);
       const newP = document.createElement('p');
-      const foundArr = [];
 
       var newPText;
       var lastNestedEndIndex;
@@ -56,48 +122,6 @@ module.exports = function (div, wordList) {
 
       newP.className = 'output';
       div.appendChild(newP);
-
-      // search formatted string for words in word list
-      for (let i = 0; i < wordList.length; i++) {
-        for (let j = 0; j < wordList[i].words.length; j++) {
-          let currentWord = wordList[i].words[j];
-          let foundIndex = lowerCase.indexOf(currentWord);
-
-          while (foundIndex > -1) {
-            let wordEndIndex = foundIndex + currentWord.length - 1;
-            let preWordChar = lowerCase[foundIndex - 1];
-
-            if (preWordChar === ' ' || preWordChar === '(' || !preWordChar) {
-              let postWordChar = lowerCase[wordEndIndex + 1];
-
-              if (postWordChar && postWordChar.search(/[,.:;!?]/) > -1) {
-                wordEndIndex++;
-                postWordChar = lowerCase[wordEndIndex + 1];
-              }
-
-              if (postWordChar === ' ' || postWordChar === ')' || !postWordChar) {
-                foundArr.push({
-                  startIndex: foundIndex,
-                  endIndex: wordEndIndex,
-                  color: wordList[i].color,
-                  priority: i
-                });
-              }
-            }
-
-            foundIndex = lowerCase.indexOf(currentWord, wordEndIndex + 1);
-          }
-        }
-      }
-
-      // sort found words by order of appearance
-      foundArr.sort((a, b) => {
-        if (a.startIndex === b.startIndex) {
-          return b.endIndex - a.endIndex;
-        }
-
-        return a.startIndex - b.startIndex;
-      });
 
       // render text and highlights
       for (let i = 0; i < foundArr.length; i++) {
@@ -198,10 +222,6 @@ module.exports = function (div, wordList) {
             let altParentHl = document.createElement('span');
             let altChildHl = createSpan(formatted, foundArr[i]);
             let altParentHlText = createText(formatted, foundArr[i].endIndex + 1, foundArr[i + 1].endIndex + 1);
-            let primaryParent;
-            let primaryChild;
-            let secondaryParent;
-            let primaryParentColor;
 
             parentHl.className = foundArr[i].color;
             childHl.className = foundArr[i + 1].color + ' hover';
@@ -214,36 +234,10 @@ module.exports = function (div, wordList) {
             newP.appendChild(altParentHl);
 
             if (foundArr[i].priority < foundArr[i + 1].priority) {
-              primaryParent = altParentHl;
-              primaryChild = altChildHl;
-              secondaryParent = parentHl;
-              primaryParentColor = foundArr[i + 1].color;
+              layeredListen(altParentHl, altChildHl, parentHl, foundArr[i + 1].color);
             } else {
-              primaryParent = parentHl;
-              primaryChild = childHl;
-              secondaryParent = altParentHl;
-              primaryParentColor = foundArr[i].color;
+              layeredListen(parentHl, childHl, altParentHl, foundArr[i].color);
             }
-
-            secondaryParent.className = 'hidden';
-
-            primaryParent.addEventListener('mouseover', (e) => {
-              if (e.target === primaryParent) {
-                primaryParent.className = 'hidden';
-                secondaryParent.removeAttribute('class');
-              } else {
-                primaryParent.removeAttribute('class');
-              }
-            });
-
-            primaryChild.addEventListener('mouseout', () => {
-              primaryParent.className = primaryParentColor;
-            });
-
-            secondaryParent.addEventListener('mouseout', () => {
-              secondaryParent.className = 'hidden';
-              primaryParent.className = primaryParentColor;
-            });
 
             i++;
           }
