@@ -14,8 +14,32 @@ function createSpan(formatted, found) {
   return newSpan;
 }
 
+// function regLayerListeners (primaryParent, primaryChild, secondaryParent, primaryParentColor) {
+//
+// }
+
 module.exports = function (div, wordList) {
   const highlighter = {
+    createInput: function () {
+      const form = document.createElement('form');
+      const textArea = document.createElement('textarea');
+      const input = document.createElement('input');
+
+      form.setAttribute('action', '');
+      form.className = 'highlighter-input';
+      textArea.setAttribute('placeholder', 'Enter text to highlight here....');
+      input.setAttribute('type', 'submit');
+      input.setAttribute('value', 'Highlight');
+      form.appendChild(textArea);
+      form.appendChild(input);
+      div.appendChild(form);
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.highlight(textArea.value);
+        textArea.value = '';
+      });
+    },
     highlight: function (str) {
       const formatted = str.replace(/\s\s+/g, ' ');
       const lowerCase = formatted.toLowerCase();
@@ -26,10 +50,11 @@ module.exports = function (div, wordList) {
       var lastNestedEndIndex;
 
       // remove previously rendered text and highlights
-      if (div.firstChild) {
-        div.removeChild(div.firstChild);
+      if (div.lastChild.className === 'output') {
+        div.removeChild(div.lastChild);
       }
 
+      newP.className = 'output';
       div.appendChild(newP);
 
       // search formatted string for words in word list
@@ -226,6 +251,7 @@ module.exports = function (div, wordList) {
         } else {
           highlight = createSpan(formatted, foundArr[i]);
           highlight.className = foundArr[i].color + ' hover';
+          highlight.setAttribute('onclick', 'void(0)');
           newP.appendChild(highlight);
         }
       }

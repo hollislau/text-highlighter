@@ -23,22 +23,13 @@ const wordList = [
   }
 ];
 
-const strArr = [
-  'Do  not   cross my radio (love my radio!) with a log file! While creative, I do not want new technology. An adorable puppy is super adorable.',
-  'Our team is very unlikely to leave behind promising candidates; we will deliver new, action-oriented prospects. Also, an army of farm animals is alarming but charming, if you have an aggressive arm?',
-  'Nothing to see here.',
-  'We expect our candidates to be action-oriented, aggressive and have creative ideas for our team. You will deliver new technology and groundbreaking designs.'
-];
-
-const divList = document.getElementsByTagName('div');
+const divList = document.getElementsByClassName('highlighter');
 const divArr = [...divList];
 
 const highlighters = divArr.map((div) => {
   return highlighter(div, wordList);
 });
 
-const highlighterOne = highlighters[0].highlight(strArr[0]);
-
-highlighters[1].highlight(strArr[1]);
-highlighters[2].highlight(strArr[2]);
-highlighters[3].highlight(strArr[3]);
+highlighters.forEach((highlighter) => {
+  highlighter.createInput();
+});

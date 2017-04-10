@@ -1,20 +1,42 @@
-p {
+.highlighter {
+  background-color: hsl(0, 0%, 90%);
+  padding: 1% 0;
+  margin: 1% 0;
+}
+
+.highlighter-input {
+  margin: 1% 0;
+}
+
+.highlighter-input textarea,
+.highlighter-input input {
+  display: block;
+  margin: 0 auto;
+}
+
+.highlighter-input textarea {
+  width: 30%;
+  height: 2rem;
+  margin-bottom: 0.5%;
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.output {
+  background-color: white;
+  margin: 1% auto;
+  padding: 1rem 2%;
+  width: 60%;
+  border: 1px solid hsl(0, 45%, 65%);
+  border-radius: 10px;
   line-height: 1.5rem;
 }
 
-span {
+.output span {
   border-radius: 5px;
   padding: 2px;
   margin: -2px;
   white-space: nowrap;
-}
-
-div {
-  margin: 1% auto;
-  padding: 0.5rem 2%;
-  width: 60%;
-  border: 1px solid grey;
-  border-radius: 10px;
 }
 
 .hover:hover {

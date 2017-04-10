@@ -48,3 +48,4 @@ test/data
 #########
 .node-version
 config.js
+test_strings.txt
